@@ -8,6 +8,9 @@ export const registerUser = async (req, res) => {
     try {
         const { name, email, password } = req.body;
         const avatar = req.files.avatar.tempFilePath;
+        if (!name || !email || !password) {
+            return res.status(400).json({ success: false, message: "Please enter all fields" });
+        }
         let user = await User.findOne({ email });
         if (user) {
             return res.status(400).json({ success: false, message: "User already exists" });
@@ -58,9 +61,13 @@ export const loginUser = async (req, res) => {
 
 export const verifyUser = async (req, res) => {
     try {
-        const otp = await Number(req.body.otp);
+        const { otp } = req.body;
+        if (!otp) {
+            return res.status(400).json({ success: false, message: "Please enter OTP" });
+        }
+        const otpNumber = await Number(otp);
         const user = await User.findById(req.user._id);
-        if (user.otp !== otp) {
+        if (user.otp !== otpNumber) {
             return res.status(400).json({ success: false, message: "Invalid OTP" });
         }
         else if (user.otp_expiry < Date.now()) {
@@ -89,6 +96,9 @@ export const logoutUser = async (req, res) => {
 export const addTask = async (req, res) => {
     try {
         const { title, description } = req.body;
+        if (!title || !description) {
+            return res.status(400).json({ success: false, message: "Please enter all fields" });
+        }
         const user = await User.findById(req.user._id);
         user.tasks.push({ title, description, completed: false, createdAt: new Date(Date.now()) });
         await user.save();
@@ -141,6 +151,9 @@ export const updateProfile = async (req, res) => {
         const user = await User.findById(req.user._id);
         const avatar = req.files.avatar.tempFilePath;
         const { name } = req.body;
+        if (!name) {
+            return res.status(400).json({ success: false, message: "Name field can't be empty" });
+        }
         if (name) {
             user.name = name;
         }
@@ -186,6 +199,9 @@ export const updatePassword = async (req, res) => {
 export const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ success: false, message: "Please enter your email" });
+        }
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ success: false, message: "User not found" });
