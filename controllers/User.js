@@ -32,8 +32,8 @@ export const registerUser = async (req, res) => {
             otp_expiry
         });
         fs.rmSync("./tmp", { recursive: true });
-        await sendMail(email, "Verify your account", `Your OTP is ${otp}`);
-        await sendToken(res, user, 201, "Otp sent to your email, please verify your account");
+        await sendMail(email, "Verify your 'Taskify App' account.", `Your OTP is ${otp}. Verify within ${process.env.OTP_Expiry} minutes to retain your account.`);
+        await sendToken(res, user, 201, `OTP sent to your email. Please verify your account within ${process.env.OTP_Expiry} minutes.`);
     } catch (error) {
         res.status(500).json({ success: false, message: `Internal Server Error: ${error.message}` });
     }
@@ -212,8 +212,8 @@ export const forgotPassword = async (req, res) => {
             user.resetPasswordOtp = otp;
             user.resetPasswordOtpExpiry = otp_expiry;
             await user.save();
-            await sendMail(email, "Reset your password", `Your OTP for resetting the password is ${otp}, If not requested by you please ignore this email.`);
-            await sendToken(res, user, 200, `Otp sent to your email: ${email}, please verify your account`);
+            await sendMail(email, "Reset your 'Taskify App' password", `Your OTP for resetting the password is ${otp}. Reset within ${process.env.Reset_Password_OTP_Expiry} minutes. If not requested by you, please ignore this email.`);
+            await sendToken(res, user, 200, `OTP sent to your email: ${email}, Please verify your account within ${process.env.Reset_Password_OTP_Expiry} minutes.`);
         }
     } catch (error) {
         res.status(500).json({ success: false, message: `Internal Server Error: ${error.message}` });
